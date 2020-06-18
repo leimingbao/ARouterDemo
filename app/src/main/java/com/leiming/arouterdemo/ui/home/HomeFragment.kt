@@ -7,43 +7,28 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.room.Room
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import com.leiming.arouterdemo.AppApplication
+import com.leiming.arouterdemo.MainActivity
 import com.leiming.arouterdemo.databinding.FragmentHomeBinding
 import com.leiming.arouterdemo.ui.home.network.RequestService
+import com.leiming.network.ClientUtil
+import com.leiming.network.database.AppDataBase
 import kotlinx.coroutines.*
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-//http://t.weather.sojson.com/api/weather/city/101030100
 class HomeFragment : Fragment() {
 
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var binding: FragmentHomeBinding
 
-//    val retrofit: Retrofit = Retrofit.Builder()
-//        .client(OkHttpClient())
-//        .baseUrl("http://t.weather.sojson.com/")
-//        .addConverterFactory(GsonConverterFactory.create())
-//        .addCallAdapterFactory(CoroutineCallAdapterFactory())
-//        .build()
-
-    val BASE_URL = "http://jisutianqi.market.alicloudapi.com"
-
-    //    val reqApi by lazy {
-//        val retrofit: = Retrofit.Builder()
-//            .baseUrl(BASE_URL)
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .addCallAdapterFactory(CoroutineCallAdapterFactory())
-//            .build()
-//        return@lazy retrofit.create(RequestService::class.java)
-//    }
-    val retrofit: Retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .addCallAdapterFactory(CoroutineCallAdapterFactory())
-        .build()
+    private val BASE_URL = "https://jisutianqi.market.alicloudapi.com"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,26 +43,20 @@ class HomeFragment : Fragment() {
             textView.text = it
         })
 
-
+        val handler = CoroutineExceptionHandler { _, exception ->
+            println("Caught $exception")
+        }
         binding.button.setOnClickListener {
-            val reqApi = retrofit.create(RequestService::class.java)
-//            ARouter.getInstance().build("/subactivity/TestActivity").navigation()
+            val reqApi =
+                ClientUtil().buildRestAdapter(requireContext().applicationContext).baseUrl(BASE_URL)
+                    .build()
+                    .create(RequestService::class.java)
+
             println("start request")
-            GlobalScope.launch {
+            GlobalScope.launch(handler) {
                 val result = reqApi.getDatas()
                 Log.i("launch", "onResponse:${result}")
             }
-
-//            GlobalScope.launch(Dispatchers.Unconfined) {
-//                Log.d("AA", "协程初始化完成，时间: " + System.currentTimeMillis())
-//                for (i in 1..3) {
-//                    Log.d("AA", "协程任务1打印第$i 次，时间: " + System.currentTimeMillis())
-//                }
-//                delay(500)
-//                for (i in 1..3) {
-//                    Log.d("AA", "协程任务2打印第$i 次，时间: " + System.currentTimeMillis())
-//                }
-//            }
         }
 
         return binding.root
