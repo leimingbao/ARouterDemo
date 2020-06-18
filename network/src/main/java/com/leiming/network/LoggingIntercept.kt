@@ -6,7 +6,8 @@ import com.leiming.network.database.AppDataBase
 import com.leiming.network.database.Logging
 import okhttp3.Interceptor
 import okhttp3.Response
-import java.lang.Exception
+import java.lang.String
+
 
 class LoggingIntercept constructor(private val context: Context) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -22,13 +23,14 @@ class LoggingIntercept constructor(private val context: Context) : Interceptor {
         val dao = dataBase.getLoggingDao()
 
         val request = chain.request()
-        val loggingEntity = Logging(1, "" + request.url, "2")
 
         println("request URL : " + request.url)
-        dao.insert(loggingEntity)
-        println("insert success")
         val response = chain.proceed(request)
         println("response message : " + response.message)
+
+        val responseBody = response.peekBody(1024 * 1024.toLong())
+        val loggingEntity = Logging(1, "" + request.url, responseBody.string())
+        dao.insert(loggingEntity)
         return response
     }
 }

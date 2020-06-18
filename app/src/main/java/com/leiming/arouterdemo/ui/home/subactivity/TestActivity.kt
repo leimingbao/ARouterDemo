@@ -29,7 +29,7 @@ class TestActivity : AppCompatActivity() {
             .build()
         val list: List<Logging> = dataBase.getLoggingDao().getAllLog()
         try {
-            binding.network.text = "URL = " + list.get(0).url
+            binding.network.text = "URL = " + list.get(0).message
         } catch (e: Exception) {
             e.printStackTrace()
         }

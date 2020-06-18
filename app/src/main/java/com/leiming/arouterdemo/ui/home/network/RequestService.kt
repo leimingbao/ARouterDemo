@@ -1,14 +1,16 @@
 package com.leiming.arouterdemo.ui.home.network
 
+import com.google.gson.JsonObject
 import kotlinx.coroutines.Deferred
+import okhttp3.ResponseBody
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Headers
+import retrofit2.http.*
 
 interface RequestService {
 
-    @Headers("Authorization:APPCODE fba0dd36693b4b04a6706ba0a2302d7f")
-    @GET("/weather/city")
-    suspend fun getDatas(): String
+    //    @FormUrlEncoded
+//    @Headers("Authorization:APPCODE fba0dd36693b4b04a6706ba0a2302d7f")
+//    @POST("/weather/query")
+    @GET("data/sk/{cityId}.html")
+    suspend fun getDatas(@Path("cityId") city: String): JsonObject
 }

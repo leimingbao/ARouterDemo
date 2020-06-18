@@ -9,6 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.HostnameVerifier
 
 class ClientUtil {
 
@@ -17,12 +18,9 @@ class ClientUtil {
         return RetrofitBuilder(context, okHttpClient)
     }
 
-
     class RetrofitBuilder(
         context: Context,
         private val httpClient: OkHttpClient
-//        private val sslSocketFactory: SSLSocketFactory,
-//        private val x509TrustManager: X509TrustManager
     ) {
         private val interceptors: MutableList<Interceptor> = ArrayList()
         private val converters: MutableList<Converter.Factory> = ArrayList()
@@ -102,6 +100,9 @@ class ClientUtil {
         fun build(): Retrofit {
 
             val okHttpBuilder: OkHttpClient.Builder = httpClient.newBuilder()
+            okHttpBuilder.hostnameVerifier(HostnameVerifier { hostname, session -> //强行返回true 即验证成功
+                true
+            })
             for (interceptor in interceptors) {
                 okHttpBuilder.addInterceptor(interceptor)
             }
