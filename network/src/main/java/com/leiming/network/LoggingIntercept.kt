@@ -23,11 +23,8 @@ class LoggingIntercept constructor(private val context: Context) : Interceptor {
         val dao = dataBase.getLoggingDao()
 
         val request = chain.request()
-
         println("request URL : " + request.url)
         val response = chain.proceed(request)
-        println("response message : " + response.message)
-
         val responseBody = response.peekBody(1024 * 1024.toLong())
         val loggingEntity = Logging(1, "" + request.url, responseBody.string())
         dao.insert(loggingEntity)
